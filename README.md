@@ -5,6 +5,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Ubuntu](https://img.shields.io/badge/Ubuntu-24.04_LTS-E95420?logo=ubuntu&logoColor=white)](https://ubuntu.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/MohamedKamil-hub/nebula-selfhosted-paas)
 
 > A lightweight alternative to Heroku, Render, or Vercel — built for small teams, developers, and homelabs who want **full control** without recurring SaaS costs.
 
