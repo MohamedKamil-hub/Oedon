@@ -36,3 +36,15 @@ apps/wordpress-app/wp-config.php
 apps/wordpress-app/wp-content/plugins/akismet/
 apps/wordpress-app/wp-content/plugins/hello.php
 apps/wordpress-app/wp-content/themes/twentytwenty*
+
+# WordPress generated content
+apps/wordpress-app/wp-content/languages/
+apps/wordpress-app/wp-content/plugins/
+apps/wordpress-app/wp-content/themes/twentytwenty*/
+
+# Digest / temp
+digest.txt
+
+# Nginx generated (se regeneran con envsubst)
+config/nginx/sites-enabled/
+config/nginx/ssl/

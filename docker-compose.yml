@@ -1,89 +1,21 @@
-version: '3.8'  # this line can be deleted if you have Docker Compose v5
-
 services:
-  nginx-proxy-manager:
-    image: 'jc21/nginx-proxy-manager:latest'
-    container_name: nebula-proxy
-    restart: unless-stopped
-    ports:
-      - '80:80'
-      - '81:81'
-      - '443:443'
-      - '10443:443'  
-    volumes:
-      - ./data/npm:/data
-      - ./data/letsencrypt:/etc/letsencrypt
-      - ./logs/npm:/var/log/nginx:rw
-    environment:
-      DISABLE_IPV6: 'true'
-    networks:
-      - nebula-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:81"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
-        compress: "true"
-
-  netdata:
-    image: netdata/netdata:latest
-    container_name: nebula-monitor
-    restart: unless-stopped
-    ports:
-      - '19999:19999'
-    volumes:
-      - netdataconfig:/etc/netdata
-      - netdatalib:/var/lib/netdata
-      - netdatacache:/var/cache/netdata
-      - ./logs/netdata:/var/log/netdata:rw
-      - /proc:/host/proc:ro
-      - /sys:/host/sys:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/passwd:/host/etc/passwd:ro
-      - /etc/group:/host/etc/group:ro
-      - /etc/localtime:/etc/localtime:ro
-    cap_add:
-      - SYS_PTRACE
-      - SYS_ADMIN
-      - DAC_READ_SEARCH
-    security_opt:
-      - apparmor:unconfined
-      - seccomp:unconfined
-    environment:
-      NETDATA_CLAIM_URL: "https://app.netdata.cloud"
-      NETDATA_HOSTNAME: "nebula-server"
-      DOCKER_HOST: "unix:///var/run/docker.sock"
-    networks:
-      - nebula-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:19999/api/v1/info"]
-      interval: 60s
-      timeout: 10s
-      retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "20m"
-        max-file: "5"
-        compress: "true"
-
-  static-web:
+  nginx-proxy:
     image: nginx:alpine
-    container_name: nebula-static
+    container_name: oedon-proxy
     restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
     volumes:
-      - ./apps/static-web/html:/usr/share/nginx/html:ro
-      - ./logs/static:/var/log/nginx:rw
+      - ./config/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./config/nginx/sites-enabled:/etc/nginx/sites-enabled:ro
+      - ./config/nginx/ssl:/etc/nginx/ssl:ro
+      - ./logs/nginx:/var/log/nginx:rw
     networks:
-      - nebula-network
+      - oedon-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 60s
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
       timeout: 5s
       retries: 3
     logging:
@@ -91,13 +23,22 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-        compress: "true"
+
+  static-web:
+    image: nginx:alpine
+    container_name: oedon-static
+    restart: unless-stopped
+    volumes:
+      - ./apps/static-web/html:/usr/share/nginx/html:ro
+      - ./logs/static:/var/log/nginx:rw
+    networks:
+      - oedon-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
-  nebula-network:
+  oedon-network:
     external: true
-
-volumes:
-  netdataconfig:
-  netdatalib:
-  netdatacache:

@@ -1,35 +1,32 @@
-version: '3.8'
 services:
   wordpress-db:
     image: mariadb:10.6
     container_name: wordpress-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: nebula_password
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: nebula_password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - ./mysql:/var/lib/mysql
     networks:
-      - nebula-network
+      - oedon-network
 
   wordpress:
     image: wordpress:latest
     container_name: wordpress-app
     restart: unless-stopped
-#    ports:
-#      - "8085:80"
     environment:
       WORDPRESS_DB_HOST: wordpress-db
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: nebula_password
-      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
     volumes:
       - ./wp-content:/var/www/html/wp-content
     networks:
-      - nebula-network
+      - oedon-network
 
 networks:
-  nebula-network:
+  oedon-network:
     external: true
