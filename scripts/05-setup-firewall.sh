@@ -42,10 +42,6 @@ echo "   ${HTTP_PORT}/tcp   - HTTP"
 echo "   ${HTTPS_PORT}/tcp  - HTTPS"
 echo "   ${PORTERO_UDP_PORT}/udp  - Portero Knock"
 echo ""
-echo " PORTS CLOSED (by design):"
-echo "   ${SSH_PORT}/tcp   - SSH (opened by portero only)"
-echo "   81/tcp    - NPM (not installed)"
-echo "   19999/tcp - Netdata (not installed)"
 echo "------------------------------------------------"
 
 sudo ufw status verbose

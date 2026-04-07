@@ -1,22 +1,6 @@
-NAMES            STATUS                          PORTS
-python-app       Up 22 minutes                   
-nebula-proxy     Up 24 minutes                   0.0.0.0:80-81->80-81/tcp, [::]:80-81->80-81/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp
-nebula-static    Up 24 minutes                   80/tcp
-nebula-monitor   Restarting (1) 43 seconds ago   
-wordpress-app    Up 28 minutes                   80/tcp
-wordpress-db     Up 28 minutes                   3306/tcp
-nebula-tunnel    Up 5 hours                      
-
-
-
-docker logs wordpress-app --tail 10 | tee docs/screenshots/wordpress_instalacion.log
-Complete! WordPress has been successfully copied to /var/www/html
-No 'wp-config.php' found in /var/www/html, but 'WORDPRESS_...' variables supplied; copying 'wp-config-docker.php' (WORDPRESS_DB_HOST WORDPRESS_DB_NAME WORDPRESS_DB_PASSWORD WORDPRESS_DB_USER)
-AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.19.0.2. Set the 'ServerName' directive globally to suppress this message
-AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using 172.19.0.2. Set the 'ServerName' directive globally to suppress this message
-[Fri Feb 06 14:58:05.812846 2026] [mpm_prefork:notice] [pid 1:tid 1] AH00163: Apache/2.4.66 (Debian) PHP/8.3.30 configured -- resuming normal operations
-[Fri Feb 06 14:58:05.813025 2026] [core:notice] [pid 1:tid 1] AH00094: Command line: 'apache2 -D FOREGROUND'
-172.19.0.6 - - [06/Feb/2026:15:05:52 +0000] "GET / HTTP/1.1" 302 367 "-" "curl/7.88.1"
-172.19.0.6 - - [06/Feb/2026:15:16:12 +0000] "GET / HTTP/1.1" 302 367 "-" "curl/7.88.1"
-172.19.0.6 - - [06/Feb/2026:15:16:26 +0000] "HEAD / HTTP/1.1" 302 348 "-" "curl/7.88.1"
-172.19.0.6 - - [06/Feb/2026:15:30:44 +0000] "HEAD / HTTP/1.1" 302 348 "-" "curl/7.88.1"
+NAMES           STATUS                 PORTS
+wordpress-app   Up 2 hours             9000/tcp
+oedon-proxy     Up 6 hours (healthy)   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp
+wordpress-db    Up 6 hours             3306/tcp
+python-app      Up 6 hours             
+oedon-static    Up 6 hours             80/tcp

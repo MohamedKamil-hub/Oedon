@@ -1,31 +1,28 @@
 services:
-  wordpress-db:
-    image: mariadb:10.6
-    container_name: wordpress-db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-    volumes:
-      - ./mysql:/var/lib/mysql
-    networks:
-      - oedon-network
-
   wordpress:
-    image: wordpress:latest
+    image: wordpress:php8.2-fpm-alpine
     container_name: wordpress-app
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256m
     environment:
       WORDPRESS_DB_HOST: wordpress-db
       WORDPRESS_DB_USER: ${MYSQL_USER}
       WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
     volumes:
-      - ./wp-content:/var/www/html/wp-content
+      - wordpress_data:/var/www/html           
+#      - ./wp-content:/var/www/html/wp-content
+      - wordpress_data:/var/www/html
     networks:
       - oedon-network
+
+volumes:
+  wordpress_data:
+    external: true
+    name: oedon_universal_wp_data
 
 networks:
   oedon-network:

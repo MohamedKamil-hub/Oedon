@@ -1,12 +1,40 @@
+
+
+
+
+
+
+
+
+
+
+use mkcert or a manual Internal CA.
+Implementing the "Automatic Rollback" if nginx configuration fails to load. because right now everything depends on the .env and a``s.list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Oedon
 
 Oedon is a lightweight, terminal-first, self-hosted platform for deploying and managing containerized applications. It uses pure Nginx (Alpine), Docker, and a custom CLI to deliver a secure, portable, and zero-maintenance infrastructure.
 
 Everything runs from the terminal. There are no web dashboards, no databases for configuration, and no heavy management layers. The system follows the **KISS** principle: Keep It Simple, Stupid. No code monoliths. Only simple, optimized, and useful scripts and templates.
-
-## Philosophy
-
-The name Oedon is inspired by the Great One from *Bloodborne* — a god that is invisible and has no form, yet is omnipresent.  
+  
 
 Oedon follows the same ideal:  
 - Invisible in process lists (`top`, `htop`)  

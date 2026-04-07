@@ -41,16 +41,18 @@ def verify():
 
 @app.route('/sign', methods=['POST'])
 def sign_deploy():
-    """Solo el administrador puede firmar un nuevo despliegue"""
+    auth = request.headers.get('X-Oedon-Key', '')
+    if auth != OEDON_PUBLIC_KEY or OEDON_PUBLIC_KEY == 'not-configured':
+        return jsonify({"status": "UNAUTHORIZED"}), 401
+
     data = request.json
     app_name = data.get('app')
     new_hash = data.get('hash')
-
     registry = _load_registry()
     registry[app_name] = new_hash
     _save_registry(registry)
+    return jsonify({"status": "SIGNED", "app": app_name})
 
-    return jsonify({"status": "SIGNED", "app": app_name, "signature": "OEDON_SIG_SHA256_..."})
 
 
 @app.route('/')

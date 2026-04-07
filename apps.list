@@ -1,0 +1,37 @@
+# ══════════════════════════════════════════════════════════════════
+# OEDON — Registro Declarativo de Aplicaciones (apps.list)
+# ══════════════════════════════════════════════════════════════════
+#
+# Formato: nombre | puerto-interno | dominio
+#
+# Reglas:
+#   - El "nombre" debe coincidir con el nombre del contenedor Docker
+#     (container_name en su docker-compose.yml) y con su posición
+#     en oedon-network. Nginx resuelve el contenedor por ese nombre.
+#
+#   - El "puerto" es el puerto INTERNO que expone la app dentro de
+#     la red Docker, no al host. No es necesario publicarlo en ports:.
+#
+#   - El "dominio" puede ser local (*.oedon.test) o real (app.tudominio.com).
+#
+# Para aplicar cambios:
+#   ./scripts/sync-apps.sh
+#
+# Para previsualizar sin aplicar:
+#   ./scripts/sync-apps.sh --dry-run
+#
+# Para desplegar una sola app manualmente:
+#   ./scripts/deploy.sh <nombre> <puerto> <dominio>
+#
+# ══════════════════════════════════════════════════════════════════
+
+# Nombre          | Puerto | Dominio
+# ─────────────────────────────────────────────────────────────────
+oedon-static      | 80     | static.oedon.test
+wordpress-app     | 80   | wordpress.oedon.test
+python-app        | 5000   | python.oedon.test
+
+# Ejemplos de futuras apps (descomentar cuando estén desplegadas):
+# pulse           | 8080   | gestion.oedon.test
+# moodle          | 8080   | lms.oedon.test
+# gitea           | 3000   | git.oedon.test

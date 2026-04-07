@@ -1,3 +1,6 @@
+volumes:
+  wordpress_data:
+    name: oedon_universal_wp_data
 services:
   nginx-proxy:
     image: nginx:alpine
@@ -12,7 +15,8 @@ services:
       - ./config/nginx/ssl:/etc/nginx/ssl:ro
       - ./data/certbot/www:/var/www/certbot:ro
       - ./data/certbot/conf:/etc/letsencrypt:ro
-      - ./logs/nginx:/var/log/nginx:rw
+      - /var/log/oedon/nginx:/var/log/nginx:rw
+      - wordpress_data:/var/www/html:ro
     networks:
       - oedon-network
     healthcheck:
@@ -50,6 +54,26 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  wordpress-db:
+    image: mariadb:10.6
+    container_name: wordpress-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    networks:
+      - oedon-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 
 networks:
   oedon-network:

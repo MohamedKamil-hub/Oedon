@@ -1,21 +1,37 @@
-<?php
-// Esto le dice a WordPress que ignore lo que diga el proxy y crea que está en el puerto 10443
-$_SERVER['HTTP_HOST'] = 'wordpress.nebula.test:10443';
-$_SERVER['SERVER_NAME'] = 'wordpress.nebula.test';
-$_SERVER['SERVER_PORT'] = 10443;
-$_SERVER['HTTPS'] = 'on';
+k<?php
+/**
+ * OEDON WordPress Configuration Example
+ * This file is optimized for the Oedon Universal Proxy.
+ */
 
-define('WP_HOME', 'https://wordpress.nebula.test:10443');
-define('WP_SITEURL', 'https://wordpress.nebula.test:10443');
+// --- 1. PROXY & SSL FIX (Critical for Oedon) ---
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strpos($_SERVER['HTTP_X_FORWARDED_PROTO'], 'https') !== false) {
+    $_SERVER['HTTPS'] = 'on';
+}
+
+// Define URLs dynamically based on the current domain in apps.list
+define('WP_HOME', 'https://' . $_SERVER['HTTP_HOST']);
+define('WP_SITEURL', 'https://' . $_SERVER['HTTP_HOST']);
 define('FORCE_SSL_ADMIN', true);
 
-/** El resto es lo estándar de Docker */
-define( 'DB_NAME', 'wordpress' );
-define( 'DB_USER', 'wordpress' );
-define( 'DB_PASSWORD', 'TU_CONTRASEÑA_AQUÍ' );
-define( 'DB_HOST', 'wordpress-db' );
-define( 'DB_CHARSET', 'utf8' );
-define( 'DB_COLLATE', '' );
+// --- 2. DATABASE (Uses Oedon's internal network names) ---
+define( 'DB_NAME',     getenv('WORDPRESS_DB_NAME') ?: 'wordpress' );
+define( 'DB_USER',     getenv('WORDPRESS_DB_USER') ?: 'wordpress' );
+define( 'DB_PASSWORD', getenv('WORDPRESS_DB_PASSWORD') ?: '123456' );
+define( 'DB_HOST',     getenv('WORDPRESS_DB_HOST') ?: 'wordpress-db' );
+define( 'DB_CHARSET',  'utf8mb4' );
+define( 'DB_COLLATE',  '' );
+
+// --- 3. SECURITY SALTS (Change these!) ---
+// You can generate these at https://api.wordpress.org/secret-key/1.1/salt/
+define('AUTH_KEY',         'put_your_unique_phrase_here');
+define('SECURE_AUTH_KEY',  'put_your_unique_phrase_here');
+define('LOGGED_IN_KEY',    'put_your_unique_phrase_here');
+define('NONCE_KEY',        'put_your_unique_phrase_here');
+define('AUTH_SALT',        'put_your_unique_phrase_here');
+define('SECURE_AUTH_SALT', 'put_your_unique_phrase_here');
+define('LOGGED_IN_SALT',   'put_your_unique_phrase_here');
+define('NONCE_SALT',       'put_your_unique_phrase_here');
 
 $table_prefix = 'wp_';
 define( 'WP_DEBUG', false );

@@ -1,0 +1,92 @@
+#!/bin/bash
+# Oedon CLI — The Invisible PaaS Control Plane
+set -euo pipefail
+
+# --- Path Configuration ---
+# Ensures the script knows where the project root is regardless of where it's called from
+BINARY_PATH="$(readlink -f "$0")"
+PROJECT_DIR="$(dirname "$(dirname "$BINARY_PATH")")"
+SCRIPTS="${PROJECT_DIR}/scripts"
+APPS_LIST="${PROJECT_DIR}/apps.list"
+
+# Always run from the project root for Docker Compose context
+cd "$PROJECT_DIR"
+
+# --- Helper: Check for sudo ---
+check_sudo() {
+    if [ "$EUID" -ne 0 ]; then
+        echo "🛡️  Oedon: This command requires sudo privileges."
+        exec sudo "$0" "$@"
+    fi
+}
+
+cmd="${1:-help}"
+[ $# -gt 0 ] && shift
+
+case "$cmd" in
+    # --- Core Declarative Engine ---
+    sync)
+        echo "🔄 Syncing infrastructure with apps.list..."
+        check_sudo
+        bash "${SCRIPTS}/sync_apps.sh" "$@"
+        ;;
+
+    add)
+        # Usage: oedon add <name> <port> <domain>
+        if [ $# -lt 3 ]; then
+            echo "❌ Error: Missing arguments."
+            echo "Usage: oedon add <name> <port> <domain>"
+            exit 1
+        fi
+        echo "📝 Adding new app to apps.list..."
+        echo "$1 | $2 | $3" >> "$APPS_LIST"
+        echo "✅ App added. Running sync..."
+        check_sudo
+        bash "${SCRIPTS}/sync_apps.sh"
+        ;;
+
+    list)
+        echo "📋 Currently declared applications in apps.list:"
+        grep -v '^#' "$APPS_LIST" | grep '|' || echo "No apps found."
+        ;;
+
+    # --- Container Orchestration ---
+    up)      docker compose up -d "$@" ;;
+    down)    docker compose down "$@" ;;
+    restart) docker compose restart "$@" ;;
+    status)  docker compose ps ;;
+    logs)    docker compose logs -f "$@" ;;
+
+    # --- Maintenance & Tools ---
+    stats)   bash "${SCRIPTS}/oedon-stats.sh" ;;
+    backup)  bash "${SCRIPTS}/99-backup.sh" ;;
+    
+    # --- Manual Deployment (Legacy/Bypass) ---
+    deploy)  
+        check_sudo
+        bash "${SCRIPTS}/deploy.sh" "$@" 
+        ;;
+
+    help|*)
+        echo "🛡️  OEDON OS — Universal PaaS CLI"
+        echo "=================================="
+        echo "Usage: oedon <command> [args]"
+        echo ""
+        echo "Declarative Commands (Recommended):"
+        echo "  sync          Applies changes from apps.list to Nginx"
+        echo "  add           Adds a new entry to apps.list and syncs"
+        echo "  list          Shows all apps declared in your system"
+        echo ""
+        echo "Infrastructure Control:"
+        echo "  up [svc]      Start services (e.g., oedon up wordpress-app)"
+        echo "  down          Stop and remove all containers"
+        echo "  restart       Restart services"
+        echo "  status        Show container health and ports"
+        echo "  logs [svc]    Follow real-time logs"
+        echo ""
+        echo "System Tools:"
+        echo "  stats         Server resources dashboard"
+        echo "  backup        Execute the backup plan (Cloud/Local)"
+        echo "  deploy        Directly run the proxy deployer"
+        ;;
+esac
