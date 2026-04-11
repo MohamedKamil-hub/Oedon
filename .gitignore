@@ -1,8 +1,8 @@
 # Variables de entorno
 .env
 *.env.local
-
-
+internal/portero/knock_client.py
+knock_client.py
 .env
 data/
 config/nginx/ssl/*.key

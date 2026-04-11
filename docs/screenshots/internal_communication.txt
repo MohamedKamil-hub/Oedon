@@ -1,0 +1,2 @@
+wget: can't connect to remote host (172.18.0.4): Connection refused
+Verdict: Connection refused as expected. Network isolation is ACTIVE.

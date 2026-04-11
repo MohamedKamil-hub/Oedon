@@ -1,0 +1,6 @@
+CONTAINER ID   IMAGE                         COMMAND                  CREATED        STATUS                 PORTS                                                                          NAMES
+b8f899842b47   nginx:alpine                  "/docker-entrypoint.…"   2 hours ago    Up 2 hours             80/tcp                                                                         oedon-static
+e3deea3c55fb   nginx:alpine                  "/docker-entrypoint.…"   2 hours ago    Up 2 hours (healthy)   0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp   oedon-proxy
+b47d26ba70d7   mariadb:10.6                  "docker-entrypoint.s…"   2 hours ago    Up 2 hours             3306/tcp                                                                       wordpress-db
+b830a16c0cf6   wordpress:php8.2-fpm-alpine   "docker-entrypoint.s…"   12 hours ago   Up 3 hours             9000/tcp                                                                       wordpress
+237e3448c47e   python-app-python-app         "python app.py"          13 hours ago   Up 3 hours                                                                                            python-app

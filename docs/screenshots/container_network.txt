@@ -1,0 +1,77 @@
+[
+    {
+        "Name": "oedon-network",
+        "Id": "33285110ca25a7c46e2a97d73de8a0da45634761c76e7475929a3fec60282db7",
+        "Created": "2026-04-10T22:59:31.066893627Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {},
+        "Labels": {},
+        "Containers": {
+            "237e3448c47ea3c3ffc748001796e2b21dd5c0ada06009112bca53c67c7bee88": {
+                "Name": "python-app",
+                "EndpointID": "2b1de4e4b0330ce736dc2055c80a0d3ec6a4065d41325b5d5c65275f2794c250",
+                "MacAddress": "5e:cc:8e:57:8a:d9",
+                "IPv4Address": "172.18.0.3/16",
+                "IPv6Address": ""
+            },
+            "b47d26ba70d77df1e3fa72c8b3b955443a90af6fd3e082a47f8b8ce26fe530bb": {
+                "Name": "wordpress-db",
+                "EndpointID": "373c1e1c246ca49bfcfd8dd1ef0a1265b2e0aa47aef5105ce7193228cc22a63f",
+                "MacAddress": "36:77:99:7c:57:87",
+                "IPv4Address": "172.18.0.6/16",
+                "IPv6Address": ""
+            },
+            "b830a16c0cf634cb2e7e04acd63d2ce1e745a041590163e4db5ff4a2b53d3604": {
+                "Name": "wordpress",
+                "EndpointID": "71d1e4c59d55bf6435bf7549f309df10349ac47b4a9c52498d8bcfdf9ac5559d",
+                "MacAddress": "a2:64:0c:7c:fc:eb",
+                "IPv4Address": "172.18.0.4/16",
+                "IPv6Address": ""
+            },
+            "b8f899842b4717c2b460007b184ec2ee38814365b4bb0e01e8ab4049c1a2c06d": {
+                "Name": "oedon-static",
+                "EndpointID": "8be4c8a53a0f54d9a36607fbcf11305d6f5ebdf45da4d612082ec9545b9a462d",
+                "MacAddress": "f2:50:bd:58:ae:05",
+                "IPv4Address": "172.18.0.5/16",
+                "IPv6Address": ""
+            },
+            "e3deea3c55fbfbc7e69a5777d586e35abd993b3371d9f65d8b2c99dac2118e43": {
+                "Name": "oedon-proxy",
+                "EndpointID": "7e2c037903c976e44519524ac09bf98e1745087966320899e69697a34cb738dd",
+                "MacAddress": "1a:60:a1:76:1c:98",
+                "IPv4Address": "172.18.0.7/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.18.0.0/16": {
+                        "IPsInUse": 8,
+                        "DynamicIPsAvailable": 65528
+                    }
+                }
+            }
+        }
+    }
+]

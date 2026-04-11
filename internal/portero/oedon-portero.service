@@ -4,11 +4,11 @@ After=network.target
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/python3 /opt/oedon-portero/portero.py
+User=root
+WorkingDirectory=/home/test/Oedon
+EnvironmentFile=/home/test/Oedon/.env
+ExecStart=/usr/bin/python3 /home/test/Oedon/internal/portero/portero.py
 Restart=always
-RestartSec=5
-StandardOutput=journal
-StandardError=journal
 
 [Install]
 WantedBy=multi-user.target

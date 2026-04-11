@@ -1,6 +1,0 @@
-oedon-static - 172.18.0.6/16
-wordpress-app - 172.18.0.5/16
-oedon-proxy - 172.18.0.3/16
-wordpress-db - 172.18.0.2/16
-python-app - 172.18.0.4/16
-

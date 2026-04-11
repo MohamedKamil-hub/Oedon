@@ -1,6 +1,0 @@
-NAMES           STATUS                 PORTS
-wordpress-app   Up 2 hours             9000/tcp
-oedon-proxy     Up 6 hours (healthy)   0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp
-wordpress-db    Up 6 hours             3306/tcp
-python-app      Up 6 hours             
-oedon-static    Up 6 hours             80/tcp

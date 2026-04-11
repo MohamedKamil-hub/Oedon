@@ -12,6 +12,22 @@ cd Oedon
 sudo bash install.sh
 ```
 
+
+
+```mermaid
+graph TD
+    subhost[Windows Client] -->|UDP Knock: 62201| Portero[Oedon Portero Digital]
+    Portero -->|Modify Rules| UFW[Firewall]
+    UFW -->|Allow Port 22| SSH[SSH Service]
+    subhost -->|Connect| SSH
+    
+    subgraph Docker_Network [Oedon Internal Network]
+        Proxy[Oedon Proxy] --- WP[WordPress]
+        Proxy --- Static[Oedon Static]
+        WP --- DB[(MariaDB)]
+    end
+```
+
 ## 2. Default Deployment
 
 Oedon comes pre-configured with three base environments out of the box:

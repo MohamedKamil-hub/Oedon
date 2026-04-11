@@ -1,11 +1,7 @@
 #!/usr/bin/env python3
 """
-Oedon Knock Client - Envía knock UDP al portero.
-Uso: python3 knock.py <servidor_ip>
-
-Config via env vars or .env in current/script directory:
-  PORTERO_SECRET      (required)
-  PORTERO_UDP_PORT    (default: 62201)
+Oedon Knock Client - Sends UDP knock to Portero.
+Usage: python3 knock.py <server_ip> --secret <your_secret>
 """
 
 import socket
@@ -14,6 +10,7 @@ import hashlib
 import time
 import sys
 import os
+import argparse
 from pathlib import Path
 
 
@@ -31,27 +28,28 @@ def _load_dotenv():
 
 _load_dotenv()
 
-KNOCK_PORT = int(os.environ.get("PORTERO_UDP_PORT", "62201"))
 
-
-def knock(server_ip: str):
-    secret = os.environ.get("PORTERO_SECRET")
-    if not secret:
-        print("[!] PORTERO_SECRET not set. Set it in env or .env")
-        sys.exit(1)
-
+def knock(server_ip: str, port: int, secret: str):
     ts = str(int(time.time()))
     mac = hmac.new(secret.encode(), ts.encode(), hashlib.sha256).hexdigest()
     payload = f"{ts}:{mac}".encode()
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.sendto(payload, (server_ip, KNOCK_PORT))
+    sock.sendto(payload, (server_ip, port))
     sock.close()
-    print(f"Knock enviado a {server_ip}:{KNOCK_PORT}")
+    print(f"[OK] Knock sent to {server_ip}:{port}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print(f"Uso: python3 {sys.argv[0]} <servidor_ip>")
+    parser = argparse.ArgumentParser(description="Oedon Knock Client")
+    parser.add_argument("ip", help="Server IP address")
+    parser.add_argument("--secret", help="Oedon Portero Secret (Overrides .env)", default=os.environ.get("PORTERO_SECRET"))
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORTERO_UDP_PORT", "62201")), help="UDP Port")
+    
+    args = parser.parse_args()
+
+    if not args.secret:
+        print("[!] PORTERO_SECRET not provided. Use --secret or set it in .env")
         sys.exit(1)
-    knock(sys.argv[1])
+
+    knock(args.ip, args.port, args.secret)

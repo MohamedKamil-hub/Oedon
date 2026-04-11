@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Oedon Portero Digital - Servidor UDP Port Knock
-Escucha en UDP, valida HMAC-SHA256 + timestamp.
-Si es válido, abre el puerto SSH para la IP origen durante N segundos.
+Oedon Portero Digital - UDP Port Knock Server
+Listens on UDP, validates HMAC-SHA256 + timestamp.
+If valid, opens SSH port for the source IP for N seconds.
 
 Config via env vars or .env file:
   PORTERO_SECRET        (required) HMAC shared key
@@ -73,34 +73,34 @@ def verify_knock(data: bytes) -> bool:
         ts_str, received_mac = parts
         ts = int(ts_str)
         if abs(time.time() - ts) > TIMESTAMP_TOLERANCE:
-            logging.warning("Timestamp fuera de rango: %d", ts)
+            logging.warning("Timestamp out of range: %d", ts)
             return False
         expected_mac = hmac.new(SECRET_KEY, ts_str.encode(), hashlib.sha256).hexdigest()
         return hmac.compare_digest(expected_mac, received_mac)
     except Exception as e:
-        logging.warning("Error verificando knock: %s", e)
+        logging.warning("Error verifying knock: %s", e)
         return False
 
 
 def open_port(ip: str):
     try:
-        cmd_open = ["ufw", "allow", "from", ip, "to", "any", "port", str(SSH_PORT), "proto", "tcp"]
+        cmd_open = ["ufw", "insert", "1", "allow", "from", ip, "to", "any", "port", str(SSH_PORT), "proto", "tcp"]
         subprocess.run(cmd_open, check=True, capture_output=True)
-        logging.info("ABIERTO puerto %d para %s (%ds)", SSH_PORT, ip, WINDOW_SECONDS)
+        logging.info("OPENED port %d for %s (%ds)", SSH_PORT, ip, WINDOW_SECONDS)
 
         time.sleep(WINDOW_SECONDS)
 
         cmd_close = ["ufw", "delete", "allow", "from", ip, "to", "any", "port", str(SSH_PORT), "proto", "tcp"]
         subprocess.run(cmd_close, check=True, capture_output=True)
-        logging.info("CERRADO puerto %d para %s", SSH_PORT, ip)
+        logging.info("CLOSED port %d for %s", SSH_PORT, ip)
     except subprocess.CalledProcessError as e:
-        logging.error("Error UFW: %s", e.stderr.decode().strip())
+        logging.error("UFW Error: %s", e.stderr.decode().strip())
 
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.bind(("0.0.0.0", LISTEN_PORT))
-    logging.info("Portero escuchando en UDP %d", LISTEN_PORT)
+    logging.info("Portero listening on UDP %d", LISTEN_PORT)
     logging.info("SSH port: %d | Window: %ds | Tolerance: %ds", SSH_PORT, WINDOW_SECONDS, TIMESTAMP_TOLERANCE)
 
     active_ips = set()
@@ -108,7 +108,7 @@ def main():
     while True:
         data, addr = sock.recvfrom(256)
         ip = addr[0]
-        logging.info("Knock recibido de %s", ip)
+        logging.info("Knock received from %s", ip)
 
         if verify_knock(data):
             if ip not in active_ips:
@@ -118,9 +118,9 @@ def main():
                     active_ips.discard(client_ip)
                 threading.Thread(target=handle, args=(ip,), daemon=True).start()
             else:
-                logging.info("IP %s ya tiene puerta abierta, ignorando", ip)
+                logging.info("IP %s already has open port, ignoring", ip)
         else:
-            logging.warning("Knock INVÁLIDO de %s", ip)
+            logging.warning("INVALID knock from %s", ip)
 
 
 if __name__ == "__main__":

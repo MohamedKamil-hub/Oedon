@@ -10,8 +10,10 @@ APPS_LIST="${PROJECT_DIR}/apps.list"
 # Load UI Colors
 if [ -f "${SCRIPTS}/colors.sh" ]; then
     source "${SCRIPTS}/colors.sh"
+    # Aseguramos que WHITE existe aunque no esté en el archivo de colores
+    [ -z "${WHITE:-}" ] && WHITE='\033[1;37m'
 else
-    BOLD='' NC='' RED='' GREEN='' YELLOW='' BLUE='' CYAN=''
+    BOLD='' NC='' RED='' GREEN='' YELLOW='' BLUE='' CYAN='' WHITE=''
     OK='[OK]' ERR='[ERR]' INFO='[INFO]' SSL='[SSL]' WARN='[WARN]'
 fi
 
@@ -31,6 +33,10 @@ cmd="${1:-help}"
 [ $# -gt 0 ] && shift
 
 case "$cmd" in
+    janitor)
+        echo -e "${INFO} Initializing system cleanup (Janitor Mode)..."
+        bash "${SCRIPTS}/oedon-janitor.sh"
+        ;;
     sync)
         echo -e "${INFO} Synchronizing infrastructure with application registry..."
         bash "${SCRIPTS}/sync_apps.sh" "$@"
@@ -118,12 +124,12 @@ case "$cmd" in
         echo -e "${INFO} Entering Secret Rotation Wizard..."
         bash "${PROJECT_DIR}/scripts/generate-secrets.sh"
         ;;
+
     lockdown)
         echo -e "${RED}${BOLD}!!! CRITICAL SECURITY ALERT !!!${NC}"
         echo -e "${YELLOW}Enabling HMAC Port Knocking (Portero Digital).${NC}"
-        echo -e "${YELLOW}SSH access will be hidden from public scans.${NC}"
         echo ""
-        read -p "Apply stealth mode now? (y/N): " confirm
+        read -p "Apply stealth mode and generate key? (y/N): " confirm
         if [[ $confirm == [yY] ]]; then
             echo -e "${INFO} Installing Portero Digital system service..."
             sudo ln -sf "${PROJECT_DIR}/internal/portero/oedon-portero.service" /etc/systemd/system/
@@ -135,8 +141,39 @@ case "$cmd" in
             sudo ufw deny "${SSH_PORT:-22}"/tcp
             sudo ufw reload
 
+            # KEY GENERATION
+            CLIENT_IP=$(hostname -I | awk '{print $1}')
+            TARGET_FILE="${PROJECT_DIR}/knock_client.py"
+
+            cat <<EOF > "$TARGET_FILE"
+#!/usr/bin/env python3
+import socket, hmac, hashlib, time
+
+# Oedon Auto-generated Knock Client
+SERVER_IP = "${CLIENT_IP}"
+PORT = ${PORTERO_UDP_PORT:-62201}
+SECRET = "${PORTERO_SECRET}"
+
+def knock():
+    ts = str(int(time.time()))
+    mac = hmac.new(SECRET.encode(), ts.encode(), hashlib.sha256).hexdigest()
+    payload = f"{ts}:{mac}".encode()
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
+        sock.sendto(payload, (SERVER_IP, PORT))
+    print(f"[OK] Knock sent to {SERVER_IP}:{PORT}")
+
+if __name__ == "__main__":
+    knock()
+EOF
+            chmod +x "$TARGET_FILE"
+
             echo -e "   ${OK} STEALTH MODE IS ACTIVE."
-            echo -e "   ${INFO} Authorized access via 'tools/knock/knock.py' only."
+            echo -e "   ${OK} KEY GENERATED: ${TARGET_FILE}"
+            echo -e "\n${CYAN}${BOLD}--- HOW TO USE YOUR KEY ---${NC}"
+            echo -e "1. Download/Copy ${BOLD}knock_client.py${NC} to your PC."
+            echo -e "2. Run this exact command on your local terminal:"
+            echo -e "   ${GREEN}python knock_client.py${NC}"
+            echo -e "${CYAN}----------------------------${NC}"
         else
             echo -e "${INFO} Lockdown sequence canceled."
         fi
@@ -236,6 +273,7 @@ case "$cmd" in
         printf "  %-18s %s\n" "certs" "SSL certificate management"
         printf "  %-18s %s\n" "stats" "Resource usage statistics"
         printf "  %-18s %s\n" "rotate" "Rotate infrastructure secrets"
+        printf "  %-18s %s\n" "janitor" "Cleanup logs, docker orphans and temp files"    
         printf "  %-18s %s\n" "reset" "Tear down everything and clean state"
         echo ""
         ;;

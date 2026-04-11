@@ -1,3 +1,8 @@
-*/5 * * * * /home/m-kamil-oedon/Oedon/scripts/oedon-watchdog.sh > /dev/null 2>&1
-00 03 * * * /home/m-kamil-oedon/Oedon/scripts/99-backup.sh >> /home/m-kamil-oedon/Oedon/logs/backup.log 2>&1
-0 3 * * * /home/user/Oedon/scripts/oedon-janitor.sh >> /var/log/oedon/janitor.log 2>&1
+# Current System Cron Jobs
+## User Cron (test):
+```
+```
+## Root Cron:
+```
+No crontab for root
+```
