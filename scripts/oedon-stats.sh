@@ -1,7 +1,7 @@
 #!/bin/bash
 # oedon-stats.sh - Oedon Server Dashboard
 # Author: Mohamed Kamil El Kouarti
-
+export LC_NUMERIC=C
 set -euo pipefail
 
 # ── Colors ──────────────────────────────────────────────

@@ -35,8 +35,15 @@ echo -e "${INFO} Configuring System Guardian (Watchdog)..."
 ) | sudo -u "$REAL_USER" crontab -
 echo -e "   ${OK} Watchdog registered in crontab."
 
+
+
 # 2. Dependencies
 echo -e "\n${BLUE}${BOLD}STEP 2: SYSTEM DEPENDENCIES${NC}"
+
+echo -e "   ${INFO} Installing system dependencies (acl, fail2ban, ufw, etc)..."
+apt-get update -qq
+apt-get install -y ca-certificates curl gnupg lsb-release acl fail2ban ufw libnss3-tools >/dev/null 2>&1
+
 echo -e "   ${INFO} Installing Docker Engine..."
 bash "$SCRIPT_DIR/scripts/01-install-docker.sh"
 usermod -aG docker "${REAL_USER}"
@@ -45,15 +52,18 @@ if [ -S /var/run/docker.sock ]; then
     chown root:docker /var/run/docker.sock
     setfacl -m "u:${REAL_USER}:rw" /var/run/docker.sock || chmod 666 /var/run/docker.sock
 fi
-
 echo -e "   ${OK} Docker group assigned and socket permissions granted."
 
+echo -e "   ${INFO} Securing app directories for Nginx..."
+# Forzamos la creación de las carpetas que Git ignora si están vacías
+mkdir -p "$SCRIPT_DIR/apps/wordpress/html"
+mkdir -p "$SCRIPT_DIR/apps/static/html"
+# Damos permiso al grupo de Nginx (www-data) para que no de Error 403
+setfacl -R -m g:www-data:rwx "$SCRIPT_DIR/apps/" 2>/dev/null || true
+setfacl -R -d -m g:www-data:rwx "$SCRIPT_DIR/apps/" 2>/dev/null || true
 
-echo -e "   ${INFO} Installing security tools (Fail2Ban, UFW)..."
-apt-get update -qq
-apt-get install -y fail2ban ufw libnss3-tools >/dev/null 2>&1
 systemctl enable fail2ban --now >/dev/null 2>&1
-echo -e "   ${OK} Security tools installed and enabled."
+echo -e "   ${OK} Security tools configured."
 
 echo -e "   ${SSL} Provisioning mkcert for trusted local SSL..."
 if ! command -v mkcert >/dev/null 2>&1; then
