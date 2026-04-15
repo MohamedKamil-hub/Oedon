@@ -46,6 +46,23 @@ apt-get install -y ca-certificates curl gnupg lsb-release acl fail2ban ufw libns
 
 echo -e "   ${INFO} Installing Docker Engine..."
 bash "$SCRIPT_DIR/scripts/01-install-docker.sh"
+
+# === IPv6 FIX + daemon.json (obligatorio para que funcione en cualquier red) ===
+echo -e " ${INFO} Applying Docker daemon configuration (ipv6 disabled)..."
+mkdir -p /etc/docker
+if [ ! -f /etc/docker/daemon.json ] || ! grep -q '"ipv6"' /etc/docker/daemon.json 2>/dev/null; then
+    cp "$SCRIPT_DIR/config/docker/daemon.json.example" /etc/docker/daemon.json
+    echo -e " ${OK} daemon.json installed from config/docker/daemon.json.example"
+else
+    echo -e " ${OK} daemon.json already exists and has ipv6 setting"
+fi
+systemctl restart docker
+sleep 2
+echo -e " ${OK} Docker daemon restarted with new configuration"
+
+
+
+
 usermod -aG docker "${REAL_USER}"
 
 if [ -S /var/run/docker.sock ]; then

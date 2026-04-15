@@ -274,7 +274,7 @@ sequenceDiagram
 ### 1 — Clone and install
 
 ```bash
-git clone https://github.com/MohamedKamil-hub/Oedon.git
+git clone --depth=1 https://github.com/MohamedKamil-hub/Oedon
 cd Oedon
 sudo bash install.sh
 ```

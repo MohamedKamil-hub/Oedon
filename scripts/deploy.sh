@@ -98,27 +98,35 @@ if [ $# -eq 0 ]; then
     docker network inspect oedon-network >/dev/null 2>&1 || docker network create oedon-network
     docker compose -f "${PROJECT_DIR}/docker-compose.yml" up -d
 
-    # Step 3: Deploy apps & Auto-Sign
+
+
+# Step 3: Deploy apps & Auto-Sign
     for app_dir in "${PROJECT_DIR}"/apps/*/; do
         [ -d "$app_dir" ] || continue
         APP_NAME=$(basename "$app_dir")
-        if [ -f "${app_dir}docker-compose.yml" ]; then
-            echo -e "   ${INFO} Deploying app: ${BOLD}${APP_NAME}${NC}"
-            # Usamos --env-file para asegurar que OEDON_PUBLIC_KEY entre siempre
-            docker compose -f "${app_dir}docker-compose.yml" --env-file "${PROJECT_DIR}/.env" up -d --build
-            
-            # INTEGRACIÓN: Si es la python-app, la firmamos automáticamente
-            if [ "$APP_NAME" = "python-app" ]; then
-                echo -e "   ${INFO} Signing python-app integrity..."
-                sleep 2
-                docker run --rm --network oedon-network curlimages/curl -s -X POST "http://python-app:5000/sign" \
-                     -H "X-Oedon-Key: ${OEDON_PUBLIC_KEY}" \
-                     -H "Content-Type: application/json" \
-                     -d '{"app": "python-app", "hash": "verified_deployment"}' > /dev/null
-                echo -e "   ${OK} python-app integrity verified."
-            fi
+
+        # Support both .yml and .yaml
+        COMPOSE_FILE=""
+        [ -f "${app_dir}docker-compose.yml" ]  && COMPOSE_FILE="${app_dir}docker-compose.yml"
+        [ -f "${app_dir}docker-compose.yaml" ] && COMPOSE_FILE="${app_dir}docker-compose.yaml"
+        [ -z "$COMPOSE_FILE" ] && continue
+
+        echo -e "   ${INFO} Deploying app: ${BOLD}${APP_NAME}${NC}"
+        docker compose -f "$COMPOSE_FILE" --env-file "${PROJECT_DIR}/.env" up -d --build
+
+        if [ "$APP_NAME" = "python-app" ]; then
+            echo -e "   ${INFO} Signing python-app integrity..."
+            sleep 2
+            docker run --rm --network oedon-network curlimages/curl -s -X POST "http://python-app:5000/sign" \
+                 -H "X-Oedon-Key: ${OEDON_PUBLIC_KEY}" \
+                 -H "Content-Type: application/json" \
+                 -d '{"app": "python-app", "hash": "verified_deployment"}' > /dev/null
+            echo -e "   ${OK} python-app integrity verified."
         fi
     done
+
+
+
 
     # Step 4: Finalize
     docker exec oedon-proxy nginx -s reload 2>/dev/null
