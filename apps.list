@@ -21,6 +21,6 @@ wordpress         | 9000   | wordpress
 python-app        | 5000   | python
 
 # Examples (uncomment when deployed):
-# moodle          | 8080   | lms
+#  moodle          | 8080   | lms
 # gitea           | 3000   | git
 # pulse           | 8080   | gestion
