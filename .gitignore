@@ -1,74 +1,53 @@
-# Variables de entorno
+# ====================== ENTORNO Y SECRETOS ======================
 .env
 *.env.local
 internal/portero/knock_client.py
 knock_client.py
-.env
+
+# ====================== DATOS PERSISTENTES ======================
 data/
-config/nginx/ssl/*.key
-config/nginx/ssl/*.crt
-
-# Claves SSH y certificados
-*.pem
-*.key
-*.crt
-config/ssh/id_oedon_server
-
-# Logs y datos de contenedores
-*.log
 logs/
-data/
 **/node_modules/
 
-# Editor y sistema
+# ====================== CERTIFICADOS Y CLAVES ======================
+config/nginx/ssl/*.key
+config/nginx/ssl/*.crt
+*.pem
+config/ssh/id_oedon_server
+
+# ====================== WORDPRESS - SOLO LO ESENCIAL ======================
+# Ignoramos TODO wp-content excepto tus archivos personalizados
+apps/wordpress/wp-content/*
+!apps/wordpress/wp-content/index.php
+!apps/wordpress/wp-content/mu-plugins/
+!apps/wordpress/wp-content/mu-plugins/*.php
+!apps/wordpress/wp-content/plugins/index.php
+!apps/wordpress/wp-content/themes/index.php
+
+# Ignoramos temas por defecto que trae la imagen oficial
+apps/wordpress/wp-content/themes/twentytwenty*/
+apps/wordpress/wp-content/plugins/akismet/
+apps/wordpress/wp-content/plugins/hello.php
+
+# Archivos generados por WordPress en runtime (nunca commitear)
+apps/wordpress/wp-content/uploads/
+apps/wordpress/wp-content/upgrade/
+apps/wordpress/wp-content/languages/
+apps/wordpress/wp-content/cache/
+apps/wordpress/wp-content/backup-db/
+apps/wordpress/wp-content/backups/
+
+# ====================== CONFIGURACIÓN GENERADA ======================
+config/nginx/sites-enabled/
+config/nginx/ssl/
+
+# ====================== EDITOR Y SISTEMA ======================
 .DS_Store
 .vscode/
 __pycache__/
 *.swp
+*.swo
+.idea/
 
-# WordPress third-party code (plugins, themes, languages)
-/apps/wordpress-app/wp-content/languages/
-/apps/wordpress-app/wp-content/plugins/
-/apps/wordpress-app/wp-content/themes/
-/apps/wordpress-app/wp-content/upgrade/
-/apps/wordpress-app/wp-content/uploads/
-
-
-# WordPress config with passwords
-apps/wordpress-app/wp-content/wp-config.php
-**/wp-config.php
-
-
-certs/
-data/letsencrypt/accounts/
-apps/wordpress-app/wp-content/upgrade/
-apps/wordpress-app/wp-content/cache/
-
-# Ignorar bases de datos persistentes de las apps
-apps/wordpress-app/mysql/
-apps/wordpress-app/wp-content/uploads/
-
-# Ignorar archivos de configuración de WP con contraseñas
-apps/wordpress-app/wp-config.php
-
-
-# WordPress core innecesario
-apps/wordpress-app/wp-content/plugins/akismet/
-apps/wordpress-app/wp-content/plugins/hello.php
-apps/wordpress-app/wp-content/themes/twentytwenty*
-
-# WordPress generated content
-apps/wordpress-app/wp-content/languages/
-apps/wordpress-app/wp-content/plugins/
-apps/wordpress-app/wp-content/themes/twentytwenty*/
-
-# Digest / temp
+# ====================== OTROS ======================
 digest.txt
-
-# Nginx generated (se regeneran con envsubst)
-config/nginx/sites-enabled/
-config/nginx/ssl/
-<archivo>
-.env
-data/
-logs/
