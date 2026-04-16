@@ -466,7 +466,7 @@ Oedon can proxy any application that runs in Docker. The only requirements are t
 **Step 1 — Create the app directory**
 
 ```bash
-mkdir -p apps/moodle-app
+mkdir -p apps/moodle
 ```
 
 **Step 2 — Write a `docker-compose.yml`**

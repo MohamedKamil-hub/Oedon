@@ -15,6 +15,57 @@ config/nginx/ssl/*.crt
 *.pem
 config/ssh/id_oedon_server
 
+# ====================== WORDPRESS – RUNTIME & DEFAULTS ======================
+# Ignorar archivos generados en tiempo de ejecución (nunca commitear)
+apps/wordpress/wp-content/uploads/
+apps/wordpress/wp-content/upgrade/
+apps/wordpress/wp-content/languages/
+apps/wordpress/wp-content/cache/
+apps/wordpress/wp-content/backup-db/
+apps/wordpress/wp-content/backups/
+
+# Ignorar plugins y temas por defecto que vienen en la imagen oficial
+apps/wordpress/wp-content/plugins/akismet/
+apps/wordpress/wp-content/plugins/hello.php
+apps/wordpress/wp-content/themes/twentytwenty*/
+
+# ====================== CONFIGURACIÓN GENERADA ======================
+config/nginx/sites-enabled/
+config/nginx/ssl/
+
+# ====================== ARCHIVOS DE OVERRIDE TEMPORALES ======================
+**/.oedon-network-override.yml
+
+# ====================== EDITOR Y SISTEMA ======================
+.DS_Store
+.vscode/
+__pycache__/
+*.swp
+*.swo
+.idea/
+
+# ====================== OTROS ======================
+digest.txt
+
+
+
+# ====================== ENTORNO Y SECRETOS ======================
+.env
+*.env.local
+internal/portero/knock_client.py
+knock_client.py
+
+# ====================== DATOS PERSISTENTES ======================
+data/
+logs/
+**/node_modules/
+
+# ====================== CERTIFICADOS Y CLAVES ======================
+config/nginx/ssl/*.key
+config/nginx/ssl/*.crt
+*.pem
+config/ssh/id_oedon_server
+
 # ====================== WORDPRESS - SOLO LO ESENCIAL ======================
 # Ignoramos TODO wp-content excepto tus archivos personalizados
 apps/wordpress/wp-content/*
