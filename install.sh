@@ -19,6 +19,43 @@ fi
 
 echo -e "${BLUE}${BOLD}--- OEDON MASTER INSTALLATION STARTED ---${NC}"
 
+# Robust apt update with retries and mirror fallback
+apt_retry_update() {
+    local max_attempts=3
+    local attempt=1
+    local wait_time=2
+
+    while [ $attempt -le $max_attempts ]; do
+        echo -e "   ${INFO} apt update (attempt $attempt/$max_attempts)..."
+        # Bypass date/hash checks – common during mirror sync
+        if apt-get update -qq -o Acquire::Check-Valid-Until=false -o Acquire::Check-Date=false; then
+            echo -e "   ${OK} apt update successful."
+            return 0
+        else
+            echo -e "   ${WARN} apt update failed (code $?)."
+            if [ $attempt -lt $max_attempts ]; then
+                echo -e "   ${INFO} Retrying in ${wait_time}s..."
+                sleep $wait_time
+                wait_time=$((wait_time * 2))
+            fi
+        fi
+        attempt=$((attempt + 1))
+    done
+
+    # Last resort: clean cache and switch to main Ubuntu mirror
+    echo -e "   ${WARN} Persistent failures. Cleaning cache and trying main mirror..."
+    rm -rf /var/lib/apt/lists/*
+    sed -i 's|http://[^ ]*archive.ubuntu.com|http://archive.ubuntu.com|g' /etc/apt/sources.list 2>/dev/null || true
+
+    if apt-get update -qq --fix-missing; then
+        echo -e "   ${OK} Forced update succeeded."
+        return 0
+    fi
+
+    echo -e "   ${ERR} Unable to update package lists after $max_attempts attempts."
+    return 1
+}
+
 # 1. Environment template only
 echo -e "\n${BLUE}${BOLD}STEP 1: ENVIRONMENT SETUP${NC}"
 if [ ! -f "$SCRIPT_DIR/.env" ]; then
@@ -35,14 +72,22 @@ echo -e "${INFO} Configuring System Guardian (Watchdog)..."
 ) | sudo -u "$REAL_USER" crontab -
 echo -e "   ${OK} Watchdog registered in crontab."
 
-
-
 # 2. Dependencies
 echo -e "\n${BLUE}${BOLD}STEP 2: SYSTEM DEPENDENCIES${NC}"
 
 echo -e "   ${INFO} Installing system dependencies (acl, fail2ban, ufw, etc)..."
-apt-get update -qq
-apt-get install -y ca-certificates curl gnupg lsb-release acl fail2ban ufw libnss3-tools >/dev/null 2>&1
+apt_retry_update || {
+    echo -e "   ${WARN} Could not refresh package lists; continuing with cached data."
+}
+if ! apt-get install -y ca-certificates curl gnupg lsb-release acl fail2ban ufw libnss3-tools; then
+    echo -e "   ${ERR} Failed to install system dependencies. Trying to fix broken packages..."
+    apt-get install -f -y
+    apt-get install -y ca-certificates curl gnupg lsb-release acl fail2ban ufw libnss3-tools || {
+        echo -e "   ${ERR} Could not install required packages. Exiting."
+        exit 1
+    }
+fi
+echo -e "   ${OK} System dependencies installed."
 
 echo -e "   ${INFO} Installing Docker Engine..."
 bash "$SCRIPT_DIR/scripts/01-install-docker.sh"
@@ -59,9 +104,6 @@ fi
 systemctl restart docker
 sleep 2
 echo -e " ${OK} Docker daemon restarted with new configuration"
-
-
-
 
 usermod -aG docker "${REAL_USER}"
 

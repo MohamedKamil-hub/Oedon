@@ -5,7 +5,7 @@
 # Format: name | internal-port | subdomain
 #
 # The full domain is built at deploy time: {subdomain}.{DOMAIN}
-# DOMAIN is read from .env (e.g., DOMAIN=paula.test -> static.paula.test)
+# DOMAIN is read from .env (e.g., DOMAIN=hello.test -> static.hello.test)
 #
 # Rules:
 #   - "name" must match the container_name in its docker-compose.yml
@@ -21,6 +21,6 @@ wordpress         | 9000   | wordpress
 python-app        | 5000   | python
 
 # Examples (uncomment when deployed):
-  moodle          | 8080   | lms
+# moodle          | 8080   | lms
 # gitea           | 3000   | git
 # pulse           | 8080   | gestion

@@ -125,6 +125,19 @@ case "$cmd" in
         bash "${PROJECT_DIR}/scripts/generate-secrets.sh"
         ;;
 
+
+     unban)
+    	if [ $# -lt 1 ]; then
+        	echo -e "${ERR} Usage: oedon unban <ip>"
+        	exit 1
+    	fi
+    	IP="$1"
+    	echo -e "${INFO} Unbanning ${IP} from all jails..."
+    	fail2ban-client unban "$IP"
+    	echo -e "   ${OK} ${IP} unbanned from all jails."
+    	echo -e "   ${INFO} Verify with: sudo iptables -L INPUT -n | grep ${IP}"
+    	;;
+
     lockdown)
         echo -e "${RED}${BOLD}!!! CRITICAL SECURITY ALERT !!!${NC}"
         echo -e "${YELLOW}Enabling HMAC Port Knocking (Portero Digital).${NC}"
